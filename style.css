@@ -1,0 +1,144 @@
+body {
+    margin: 0;
+    padding: 1rem;
+    height: 100vh;
+    background-color: rgb(224,231,34);
+    font-family: 'Red Hat Mono', monospace;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+}
+
+button {
+    border-radius: 25px;
+    font-size: 3rem;
+    font-family: 'Red Hat Mono', monospace;
+}
+
+#calculator-container {
+    flex: 1;
+    max-height: 85vh;
+    max-width: 800px;
+    min-width: min-content;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    grid-template-areas: 
+    "scr scr scr scr"
+    "scr scr scr scr"
+    "num num num op"
+    "num num num op"
+    "num num num op"
+    "num num num op"
+    "clear clear clear op"
+    "equal equal equal equal";
+    gap: 1rem;
+}
+
+.area {
+    border-radius: 25px;
+    padding: 1rem;
+    display: grid;
+    gap: 1rem;
+
+}
+
+.screen {
+    flex-shrink: 3;
+    grid-area: scr;
+    padding: 2rem;
+    background-color: rgb(234, 251, 220);
+    text-align: right;
+    font-size: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+#past-operations {
+    color: gray;
+}
+
+.numbers {
+    grid-area: num; 
+    background-color: rgb(249, 238, 158);
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+}
+
+.num-button {
+    background-color: yellow;
+}
+
+#decimal {
+    grid-column: 2 / -1;
+}
+
+.operators {
+    grid-area: op;
+    background-color: rgb(235, 158, 69);
+    grid-template-rows: repeat(5, 1fr);
+}
+
+.operator-button {
+    background-color: orange;
+}
+
+.plus-minus {
+    font-size: 4rem;
+}
+
+.options {
+    grid-area: clear;
+    background-color: rgb(249, 238, 158);
+    min-width: min-content;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.options-button {
+    font-size: 1.5rem;
+}
+
+.equal {
+    grid-area: equal;
+    background-color: rgb(174, 180, 20);
+}
+
+.equal-button {
+    background-color: rgb(82, 132, 48);
+}
+.footer-container {
+    flex-shrink: 0;
+    height: 8vh;
+    min-width: ;
+    max-width: 800px;
+    background-color: gray;
+    border-radius: 25px;
+    /* display: flex;
+    justify-content: stretch;
+    align-items: stretch; */
+}
+
+.footer-container ul {
+    margin: 0;
+    padding: 2vh;
+    list-style-type: none;
+    font-size: 1.5em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#spacer {
+    flex: 1;
+}
+
+.mfb-logo {
+    max-height: 50px
+}
+
+a {
+    text-decoration: none; 
+}
