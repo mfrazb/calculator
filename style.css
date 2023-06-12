@@ -16,6 +16,10 @@ button {
     font-family: 'Red Hat Mono', monospace;
 }
 
+button:hover {
+    transform: scale(1.1);
+}
+
 #calculator-container {
     flex: 1;
     max-height: 85vh;
@@ -114,7 +118,7 @@ button {
     height: 8vh;
     min-width: ;
     max-width: 800px;
-    background-color: gray;
+    background-color: rgb(141, 145, 141, 0.8);
     border-radius: 25px;
     /* display: flex;
     justify-content: stretch;
