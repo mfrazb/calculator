@@ -24,10 +24,10 @@
     <div id="calculator-container">
         <div class="screen area">
             <div id="current-operation">
-                <div>input</div>
-                <div>output</div>
+                <div id="screen-input">0</div>
+                <div id="screen-output"></div>
             </div>
-            <div id="past-operations">past operations</div>
+            <div id="past-operations"></div>
         </div>
         <div class="numbers area">
             <button class="num-button">7</button>
@@ -45,14 +45,14 @@
         <div class="operators area">
             <button class="operator-button plus-minus">+</button>
             <button class="operator-button plus-minus">-</button>
-            <button class="operator-button">X</button>
+            <button class="operator-button">*</button>
             <button class="operator-button">/</button>
             <button class="operator-button">%</button>
         </div>
         <div class="options area">
-            <button class="options-button">Clear Current</button>
-            <button class="options-button">Clear<br> All</button>
-            <button class="options-button">Show History</button>
+            <button id="backspace" class="options-button">Backspace</button>
+            <button id="clear" class="options-button">Clear</button>
+            <button id="show-history" class="options-button">Show History</button>
         </div>
         <div class="equal area">
             <button class="equal-button">=</button>

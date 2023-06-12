@@ -61,6 +61,10 @@ button:hover {
     align-items: flex-end;
 }
 
+#screen-output {
+    font-size: 3rem;
+}
+
 #past-operations {
     color: gray;
 }
