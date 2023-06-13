@@ -1,15 +1,40 @@
-// take user's operator choice and calls function to perform math operation
-function operate(operator, str1, str2) {
-    // convert number strings to nums 
-    const num1 = Number(str1);
-    const num2 = Number(str2);
+// perform math operations on user's input when user presses equal button
+function operate(array) {
+    //input - array of nums and operatos
+    // output - result of math operations 
 
-    // call appropriate callback based on operator passed in
-    if (operator === '+') return add(num1, num2);
-    if (operator === "-") return subtract(num1, num2);
-    if (operator === "*") return multiply(num1, num2);
-    if (operator === "/") return divide(num1, num2);
-    if (operator === "%") return modulus(num1, num2);
+    // convert string numbers to number values for calculations 
+    const calcArray = array.map(element => Number(element) ? Number(element) : element);
+
+    // base case - if array has length of 1, return value at index 0
+    if (calcArray.length <= 1) return array[0];
+
+    // recursive case
+
+    // perform primary operations and reduce related portions of array
+    for (let i = 0; i < calcArray.length; i++) { // 3 * 2 + 1 * 5, [3, *, 2, +, 1, *, 5]
+        if (calcArray[i] === "*") {
+            let currOutput = multiply(calcArray[i - 1], calcArray[i + 1]);
+            calcArray.splice(i - 1, 3, currOutput);
+        } else if (calcArray[i] === "/") {
+            let currOutput = divide(calcArray[i - 1], calcArray[i + 1]);
+            calcArray.splice(i - 1, 3, currOutput);
+        }
+
+    }
+
+    // perform secondary operations and reduce related portions of array 
+    for (let i = 0; i < calcArray.length; i++) {
+        if (calcArray[i] === "+") {
+            let currOutput = add(calcArray[i - 1], calcArray[i + 1]);
+            calcArray.splice(i - 1, 3, currOutput);
+        } else if (calcArray[i] === "-") {
+            let currOutput = subtract(calcArray[i - 1], calcArray[i + 1]);
+            calcArray.splice(i - 1, 3, currOutput);
+        }
+    }
+
+    return operate(calcArray);
 }
 
 // callback functions to perform math operations
@@ -34,114 +59,171 @@ function modulus(num1, num2) {
     return Math.floor(num1 / num2) + " rem " + (num1 % num2);
 }
 
+
 // create event listeners for clicks and keydowns 
 
-function displayInput() {
-    // closure to record 1st invocation and screen values
-    let firstInvocation = true;
+function calculator() {
+    //input - none 
+    //output - checkValue function with closure for inputs, output, and cache of past calculations
+
+    // store past and current inputs and outputs
+    const cache = [];
+    const inputArray = [];
+
+    // record if user has pressed equal
     let pressedEqual = false;
 
-    //store past inputs and outputs
-    const cache = [];
-
-    // create closure to hold screen values as buttons are pressed
+    // update screen values as buttons are pressed
     let screenInput = document.getElementById("screen-input");
-    let screenOutput = document.getElementById("screen-output"); 
+    let screenOutput = document.getElementById("screen-output");
     let history = document.getElementById("show-history");
 
-    let string1 = ``;
-    let operator = ``;
-    let string2 = ``;
+    let lastClickedValue;
+    let lastClickedElement;
+    let lastClickedClasses;
 
 
     function checkValue(event) {
+        //input - all click events on all buttons 
+        //output - invokes particular func based on which button user clicks on 
 
         const clickedValue = event.target.textContent;
         const clickedId = event.target.id;
+        const clickedClasses = [...event.target.classList];
 
-        // const lastValueClicked = string1[string1.length - 1];
+        function addInput(event) {
+            // input - user click events on number and operator buttons 
+            // output - numbers and chosen operator, screen input 
 
-        // user clicks values to form single or multi-digit number OR select operator
-        // example user clicks 3, user clicks 7 - display shows '37'
+            // user clicks values to form single or multi-digit number OR select operator
 
-        //user inputs 1st num
-        if (Number(clickedValue) && firstInvocation) {
-            string1 = clickedValue;
-            screenInput.textContent = string1;
-            firstInvocation = false;
-        } else if (Number(clickedValue) && !operator){
-            // user inputs additional digits of 2nd num
-            string1 += clickedValue;
-            screenInput.textContent = string1;
-        } else if (!Number(clickedValue) && !operator) {
-            // user inputs operator 
-            operator = `${clickedValue}`;
-            screenInput.textContent += ` ${operator}`;
-        } else if (!Number(clickedValue) && operator && !string2) {
-            // user updates operator 
-            operator = `${clickedValue}`;
-            screenInput.textContent = `${string1} ${operator}`
-        } else if (Number(clickedValue) && string1 && operator && !string2) {
-            // user inputs first digit of second num
-            string2 += clickedValue;
-            screenInput.textContent += ` ${string2}`;
-        } else if (Number(clickedValue) && string1 && operator && string2 && !pressedEqual) {
-            // user inputs additional digits of second num 
-            string2 += clickedValue;
-            screenInput.textContent += clickedValue;
-        } else if (clickedValue === '=') {
-            // when user clicks equal
+            // user continues operation on previous output
+            if (clickedClasses.includes("operator-button") && pressedEqual && inputArray.length === 1) {
+                inputArray.push(clickedValue);
+                pressedEqual = false;
+            } else if (Number(clickedValue) && pressedEqual && inputArray.length === 1) {
+                // user enters number right after previous output to start totally new calculation
+                inputArray.pop();
+                inputArray.push(clickedValue);
+                pressedEqual = false;
+                screenOutput.textContent = ``;
+            }else if (Number(clickedValue) && !Number(lastClickedValue)) {
+                //user inputs first digit of num
+                inputArray.push(clickedValue);
+            } else if (Number(clickedValue) && Number(lastClickedValue)) {
+                // user inputs additional digits of current num
+                inputArray[inputArray.length - 1] += clickedValue;
+            } else if (!Number(clickedValue) && !lastClickedClasses.includes("operator-button")) {
+                // user inputs operator first time
+                inputArray.push(clickedValue);
+            } else if (!Number(clickedValue) && lastClickedClasses.includes("operator-button")) {
+                // user updates current operator 
+                inputArray[inputArray.length - 1] = clickedValue;
+            }
 
-            if (!pressedEqual) {
-                // add equal sign to input
-                screenInput.textContent += ` ${clickedValue}`;
+            // update input on screen 
+            screenInput.textContent = inputArray.join(' ');
+
+        }
+
+        function returnOutput(event) {
+            //input - user click event on equal button 
+            //output - displays output on screen, saves output in cache 
+
+            // let user complete operation after they have provided necessary input
+            if (!pressedEqual && inputArray.length >= 3 && Number(inputArray[inputArray.length - 1])) {
+                // run math operation
+                const output = operate(inputArray);
+                // display output on screen
+                screenOutput.textContent = output;
+                // store input and output in history
+                cache.push({ [output]: screenInput.textContent });
+                console.log(cache);
+                
+                while (inputArray.length) {
+                    inputArray.pop();
+                }
+
+                // update future input to previous output if user decides to do more operations
+                inputArray.push(output);
+
                 pressedEqual = true;
             }
-            // run math operation
-            let output = operate(operator, string1, string2);
-            // update output on screen
-            screenOutput.textContent = output;
-            // store input and output in history
-            cache.push({[output]: screenInput.textContent});
-            console.log(cache);
-        } else if (clickedValue === "Backspace" && !pressedEqual) {
-            screenInput.textContent = screenInput.textContent.slice(0, -1);
-        } else if (clickedValue === "Clear") {
-            string1 = ``;
-            operator = ``;
-            string2 = ``;
-            screenInput.textContent = 0;
-            screenOutput.textContent = ``;
-        } else if (clickedId === "show-history") {
-            // show history in screen display
-            console.log(cache);
         }
+
+        function clearInput(event) {
+            //input - user click event on backspace or clear button
+            //output - resets input and removes output from screen, resets variables so user can perform more calculations 
+
+            console.log(pressedEqual);
+            //if user clicks backspace, update displayed input and closures for string1, operator, or string2
+            if (clickedId === "backspace" && !pressedEqual) {
+
+                if (inputArray[inputArray.length - 1].length > 1) {
+                    inputArray[inputArray.length - 1] = inputArray[inputArray.length - 1].slice(1); 
+                }
+                else {
+                    inputArray.pop();
+                }
+
+            // update input on screen 
+            screenInput.textContent = inputArray.join(' ');
+    
+            } else if (clickedId === "backspace" && pressedEqual) {
+                // if user tries to hit backspace after operation has been performed, don't change interface and log message to console
+                console.log(`User already pressed equal. Cannot backspace`);
+            }
+    
+            // if user clicks clear, reset all values and display 0 on input screen
+            if (clickedValue === "Clear") {
+    
+                screenInput.textContent = 0;
+                screenOutput.textContent = ``;
+                while (inputArray.length) inputArray.pop();
+                pressedEqual = false;
+            }  
+        }
+
+        // choose which function to invoke based on user input 
+
+        // if the clicked value is a number or operator, invoke addInput 
+        if (clickedClasses.includes("num-button") ||
+            clickedClasses.includes("operator-button")) addInput(event);
+        // if the clicked value is the equal sign, invoke returnOutput
+        if (clickedClasses.includes("equal-button")) returnOutput(event);
+        // if the clicked value is backspace or clear, invoke clearInput 
+        if (clickedId === "backspace" || clickedId === "clear") clearInput(event);
+        // if the clicked value is Show History, invoke showHistory 
+        if (clickedId === "show-history") showHistory(event);
+
+
+
+        // store clicked values for next time user clicks a button
+        lastClickedValue = clickedValue;
+        lastClickedElement = event.target;
+        lastClickedClasses = clickedClasses;
+
+        console.log(inputArray);
+
     }
 
+    function showHistory(event) {
+        const pastOperations = document.getElementById("past-operations");
+        console.log(pastOperations);
+    }
 
     return checkValue;
 }
 
+// when user clicks button, user starts calculator
+const runCalculator = calculator();
 
+const allButtons = [...document.querySelectorAll(".num-button"),
+...document.querySelectorAll(".operator-button"),
+...document.querySelectorAll(".options-button"),
+document.querySelector(".equal-button")
+];
 
-// when user clicks button, start math on calculator 
-
-const numsAndOperators = [...document.querySelectorAll(".num-button"), 
-                          ...document.querySelectorAll(".operator-button"),
-                          ...document.querySelectorAll(".options-button"),
-                          document.querySelector(".equal-button")
-                        ];
-
-// when user clicks button, displayInput stores user input and saves past history
-const currDisplay = displayInput();
-
-numsAndOperators.forEach(button => {
-    button.addEventListener("click", currDisplay);
+allButtons.forEach(button => {
+    button.addEventListener("click", runCalculator);
 });
-
-
-
-
-
-
-
