@@ -1,13 +1,22 @@
-// perform math operations on user's input when user presses equal button
+// perform math operations on user's input when user presses equal
 function operate(array) {
     //input - array of nums and operatos
     // output - result of math operations 
 
     // convert string numbers to number values for calculations 
-    const calcArray = array.map(element => Number(element) ? Number(element) : element);
+    const calcArray = array.map(element => {
+        if (Number(element) || element === "0") {
+            return Number(element);
+        } else return element;
+    });
+
+
+
 
     // base case - if array has length of 1, return value at index 0
     if (calcArray.length <= 1) return array[0];
+
+    if (calcArray.includes("%")) return modulus(array[0], array[2]);
 
     // recursive case
 
@@ -60,7 +69,7 @@ function modulus(num1, num2) {
 }
 
 
-// create event listeners for clicks and keydowns 
+// when user clicks button, calculator program starts
 
 function calculator() {
     //input - none 
@@ -83,6 +92,7 @@ function calculator() {
     let lastClickedClasses;
 
 
+    // when user clicks button, related func invokes - addInput, returnOutput, clearInput, or showHistory
     function checkValue(event) {
         //input - all click events on all buttons 
         //output - invokes particular func based on which button user clicks on 
@@ -95,28 +105,47 @@ function calculator() {
             // input - user click events on number and operator buttons 
             // output - numbers and chosen operator, screen input 
 
-            // user clicks values to form single or multi-digit number OR select operator
+            // USER STARTS NEXT OPERATION
 
             // user continues operation on previous output
-            if (clickedClasses.includes("operator-button") && pressedEqual && inputArray.length === 1) {
+            if (clickedClasses.includes("operator-button") && pressedEqual) {
                 inputArray.push(clickedValue);
                 pressedEqual = false;
-            } else if (Number(clickedValue) && pressedEqual && inputArray.length === 1) {
-                // user enters number right after previous output to start totally new calculation
+            } else if (clickedClasses.includes("num-button") && pressedEqual) {
+                // user starts new operation right after previous by clicking number
                 inputArray.pop();
                 inputArray.push(clickedValue);
                 pressedEqual = false;
                 screenOutput.textContent = ``;
-            }else if (Number(clickedValue) && !Number(lastClickedValue)) {
-                //user inputs first digit of num
+            } else if (clickedValue === "0" && inputArray[inputArray.length - 1] === "0") {
+                // USER TRIES TO INPUT INVALID NUMBER OR OPERATION
+
+                // user tries to input 00 as a number
+                console.log("00 is not a valid entry");
+            } else if (clickedValue === "0" && lastClickedValue === "/") {
+                // user tries to divide by 0
+                console.log(`You can't divide by 0`);
+            } else if ((inputArray.includes("%") && clickedClasses.includes("operator-button")) || 
+                        (clickedValue === "%" && 
+                        inputArray.some(element => ["+", "-", "*", "/", "%"].includes(element)))) {
+            // user tries to use modulus in operation with multiple operators
+            console.log("You can't use modulus in combination with other operators");
+        } else if (clickedClasses.includes("num-button") && !Number(lastClickedValue) && lastClickedValue !== "0") {
+                // USER INPUTS VALID OPERATION
+
+                // user inputs first digit of num
                 inputArray.push(clickedValue);
-            } else if (Number(clickedValue) && Number(lastClickedValue)) {
-                // user inputs additional digits of current num
+            } else if (clickedClasses.includes("num-button") && lastClickedClasses.includes("num-button")) {
+                // user inputs additional digits of current num, including 0
                 inputArray[inputArray.length - 1] += clickedValue;
-            } else if (!Number(clickedValue) && !lastClickedClasses.includes("operator-button")) {
+            } else if (clickedClasses.includes("operator-button") && 
+                        (!lastClickedClasses.includes("operator-button") &&
+                        !lastClickedClasses.includes("options-button") && 
+                        lastClickedValue !== "0")) {
+                            console.log('here');
                 // user inputs operator first time
                 inputArray.push(clickedValue);
-            } else if (!Number(clickedValue) && lastClickedClasses.includes("operator-button")) {
+            } else if (clickedClasses.includes("operator-button") && !Number(lastClickedValue)) {
                 // user updates current operator 
                 inputArray[inputArray.length - 1] = clickedValue;
             }
@@ -139,7 +168,7 @@ function calculator() {
                 // store input and output in history
                 cache.push({ [output]: screenInput.textContent });
                 console.log(cache);
-                
+
                 while (inputArray.length) {
                     inputArray.pop();
                 }
@@ -160,28 +189,33 @@ function calculator() {
             if (clickedId === "backspace" && !pressedEqual) {
 
                 if (inputArray[inputArray.length - 1].length > 1) {
-                    inputArray[inputArray.length - 1] = inputArray[inputArray.length - 1].slice(1); 
+                    inputArray[inputArray.length - 1] = inputArray[inputArray.length - 1].slice(1);
                 }
                 else {
                     inputArray.pop();
                 }
 
-            // update input on screen 
-            screenInput.textContent = inputArray.join(' ');
-    
+                // update input on screen 
+                screenInput.textContent = inputArray.join(' ');
+
             } else if (clickedId === "backspace" && pressedEqual) {
                 // if user tries to hit backspace after operation has been performed, don't change interface and log message to console
                 console.log(`User already pressed equal. Cannot backspace`);
             }
-    
+
             // if user clicks clear, reset all values and display 0 on input screen
             if (clickedValue === "Clear") {
-    
+
                 screenInput.textContent = 0;
                 screenOutput.textContent = ``;
                 while (inputArray.length) inputArray.pop();
                 pressedEqual = false;
-            }  
+            }
+        }
+
+        function showHistory(event) {
+            const pastOperations = document.getElementById("past-operations");
+            console.log(pastOperations);
         }
 
         // choose which function to invoke based on user input 
@@ -207,10 +241,7 @@ function calculator() {
 
     }
 
-    function showHistory(event) {
-        const pastOperations = document.getElementById("past-operations");
-        console.log(pastOperations);
-    }
+
 
     return checkValue;
 }
