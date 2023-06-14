@@ -2,7 +2,7 @@
 function operate(array) {
     //input - array of nums and operatos
     // output - result of math operations 
-console.log('here');
+
     // convert string numbers to number values for calculations 
     const calcArray = array.map(element => {
         if (Number(element) || element === "0") {
@@ -83,6 +83,7 @@ function calculator() {
     let screenInput = document.getElementById("screen-input");
     let screenOutput = document.getElementById("screen-output");
     let history = document.getElementById("show-history");
+    let pastOperations = document.getElementById("past-operations");
 
     let lastClickedValue;
     let lastClickedElement;
@@ -107,11 +108,13 @@ function calculator() {
             // user continues operation on previous output
             if (clickedClasses.includes("operator-button") && pressedEqual) {
                 inputArray.push(clickedValue);
+                screenOutput.textContent = ``;
                 pressedEqual = false;
             } else if (clickedClasses.includes("num-button") && pressedEqual) {
                 // user starts new operation right after previous by clicking number
                 inputArray.pop();
-                inputArray.push(clickedValue);
+                if (clickedValue === ".") inputArray.push("0.");
+                else inputArray.push(clickedValue);
                 pressedEqual = false;
                 screenOutput.textContent = ``;
             } else if (clickedValue === "0" && inputArray[inputArray.length - 1] === "0") {
@@ -127,13 +130,22 @@ function calculator() {
                         inputArray.some(element => ["+", "-", "*", "/", "%"].includes(element)))) {
             // user tries to use modulus in operation with multiple operators
             console.log("You can't use modulus in combination with other operators");
-        } else if (clickedClasses.includes("num-button") && !Number(lastClickedValue) && lastClickedValue !== "0") {
+        } else if (clickedClasses.includes("num-button") && 
+                    !Number(lastClickedValue) && 
+                    lastClickedValue !== "0" && 
+                    lastClickedValue !== ".") {
                 // USER INPUTS VALID OPERATION
 
                 // user inputs first digit of num
-                inputArray.push(clickedValue);
-            } else if (clickedClasses.includes("num-button") && lastClickedClasses.includes("num-button")) {
+                if (clickedValue === ".") inputArray.push("0.");
+                else inputArray.push(clickedValue);
+            } else if (clickedClasses.includes("num-button") && (
+                lastClickedClasses.includes("num-button") || 
+                lastClickedValue === ".")) {
                 // user inputs additional digits of current num, including 0
+                inputArray[inputArray.length - 1] += clickedValue;
+            } else if (clickedId === "decimal" && !inputArray.join('').includes(".")) {
+                // user adds decimal to number
                 inputArray[inputArray.length - 1] += clickedValue;
             } else if (clickedClasses.includes("operator-button") && 
                         (!lastClickedClasses.includes("operator-button") &&
@@ -174,6 +186,9 @@ function calculator() {
                 // update future input to previous output if user decides to do more operations
                 inputArray.push(output);
 
+                // clear history if currently displayed
+                if (pastOperations.textContent.length) pastOperations.textContent = ``;
+
                 pressedEqual = true;
             }
         }
@@ -212,8 +227,15 @@ function calculator() {
         }
 
         function showHistory(event) {
-            const pastOperations = document.getElementById("past-operations");
-            console.log(pastOperations);
+            let pastInput; 
+            let pastOutput; 
+            for (let key in cache[cache.length - 1]) {
+                pastInput = cache[cache.length - 1][key];
+                pastOutput = key;
+            }
+
+            if (!inputArray.length) pastOperations.textContent = `no past calculations`;
+            else pastOperations.textContent = `${pastInput} = ${pastOutput}`;
         }
 
         // choose which function to invoke based on user input 
