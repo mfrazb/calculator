@@ -2,16 +2,13 @@
 function operate(array) {
     //input - array of nums and operatos
     // output - result of math operations 
-
+console.log('here');
     // convert string numbers to number values for calculations 
     const calcArray = array.map(element => {
         if (Number(element) || element === "0") {
             return Number(element);
         } else return element;
     });
-
-
-
 
     // base case - if array has length of 1, return value at index 0
     if (calcArray.length <= 1) return array[0];
@@ -142,7 +139,6 @@ function calculator() {
                         (!lastClickedClasses.includes("operator-button") &&
                         !lastClickedClasses.includes("options-button") && 
                         lastClickedValue !== "0")) {
-                            console.log('here');
                 // user inputs operator first time
                 inputArray.push(clickedValue);
             } else if (clickedClasses.includes("operator-button") && !Number(lastClickedValue)) {
@@ -160,7 +156,9 @@ function calculator() {
             //output - displays output on screen, saves output in cache 
 
             // let user complete operation after they have provided necessary input
-            if (!pressedEqual && inputArray.length >= 3 && Number(inputArray[inputArray.length - 1])) {
+            if (!pressedEqual && inputArray.length >= 3 && 
+                (Number(inputArray[inputArray.length - 1]) || 
+                inputArray[inputArray.length - 1] === "0")) {
                 // run math operation
                 const output = operate(inputArray);
                 // display output on screen
